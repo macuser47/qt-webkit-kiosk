@@ -351,7 +351,7 @@ void MainWindow::init(AnyOption *opts)
 void MainWindow::delayedWindowResize()
 {
     qDebug("Setting focus policy, window size");
-    this->setFocusPolicy(Qt::StrongFocus);
+    this->setFocusPolicy(Qt::NoFocus);
 
     if (qwkSettings->getBool("view/stay_on_top")) {
         setWindowFlags(Qt::FramelessWindowHint|Qt::WindowStaysOnTopHint);
@@ -449,7 +449,7 @@ void MainWindow::centerFixedSizeWindow()
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
-    if (qwkSettings->getUInt("browser/disable_hotkeys")) {
+    if (qwkSettings->getBool("browser/disable_hotkeys")) {
         QMainWindow::keyPressEvent(event);
         return;
     }
@@ -518,7 +518,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         }
         break;
     default:
-        view->event(event);
+        QMainWindow::keyPressEvent(event);
     }
 }
 
