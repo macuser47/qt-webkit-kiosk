@@ -57,7 +57,7 @@
 #include <QtWebKitWidgets/QWebInspector>
 #endif
 
-#include "webview.h"
+#include "qweb.h"
 #include "anyoption.h"
 #include "unixsignals.h"
 #include "qwk_settings.h"

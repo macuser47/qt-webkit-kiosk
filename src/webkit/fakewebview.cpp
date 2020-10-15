@@ -1,4 +1,4 @@
-#include <fakewebview.h>
+#include <webkit/fakewebview.h>
 
 FakeWebView::FakeWebView(QWidget *parent) : QWebView(parent)
 {

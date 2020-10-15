@@ -11,7 +11,7 @@
 
 #include <QtGui>
 #include <QtWebKit>
-#include "webview.h"
+#include "qweb.h"
 #include "qwk_webpage.h"
 
 

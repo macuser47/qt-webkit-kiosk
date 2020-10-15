@@ -11,10 +11,12 @@ contains(QT_VERSION, ^5\\.[0-9]+\\..*) {
     DEFINES  += QT5
 }
 
-CONFIG += console link_pkgconfig
+CONFIG += console link_pkgconfig debug
 TARGET = qt-webkit-kiosk
 TEMPLATE = app
 VERSION = 1.99.11-dev
+
+DEFINES += WEB_KIT
 
 CONFIG(debug, debug|release) {
 # here comes debug specific statements
@@ -144,27 +146,28 @@ message(- VERSION: $${VERSION})
 SOURCES += main.cpp\
     mainwindow.cpp \
     qwk_webpage.cpp \
-    webview.cpp \
     anyoption.cpp \
-    fakewebview.cpp \
     cachingnm.cpp \
     unixsignals.cpp \
     socketpair.cpp \
     persistentcookiejar.cpp \
-    qwk_settings.cpp
+    qwk_settings.cpp \
+    webkit/fakewebview.cpp \
+    webkit/webview.cpp
 
 HEADERS  += mainwindow.h \
     qwk_webpage.h \
-    webview.h \
     anyoption.h \
     config.h \
     qplayer.h \
-    fakewebview.h \
     cachingnm.h \
     unixsignals.h \
     socketpair.h \
     persistentcookiejar.h \
-    qwk_settings.h
+    qwk_settings.h \
+    webkit/fakewebview.h \
+    webkit/webview.h \
+    qweb.h
 
 # DEBUG
 #message(- SOURCES: $${SOURCES})
