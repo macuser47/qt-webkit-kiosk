@@ -722,7 +722,7 @@ void MainWindow::finishLoading(bool ok)
         attachStyles();
         attachJavascripts();
 
-        view->mainFrame()->evaluateJavaScript("console.log('Test console log catchup by Qwk');");
+        ((QwkWebPage*)(view->page()))->runJavaScript("console.log('Test console log catchup by Qwk');");
 
         // 3. Focus window and click into it to stimulate event loop after signal handling
         putWindowUp();
@@ -740,8 +740,7 @@ bool MainWindow::hideScrollbars()
     if (qwkSettings->getBool("view/hide_scrollbars")) {
         qDebug("Try to hide scrollbars...");
 
-        view->mainFrame()->setScrollBarPolicy( Qt::Vertical, Qt::ScrollBarAlwaysOff );
-        view->mainFrame()->setScrollBarPolicy( Qt::Horizontal, Qt::ScrollBarAlwaysOff );
+        view->hideScrollbars();
     }
 
     return true;
@@ -754,44 +753,7 @@ bool MainWindow::disableSelection()
     if (qwkSettings->getBool("view/disable_selection")) {
         qDebug("Try to disable text selection...");
 
-        // Then webkit loads page and it's "empty" - empty html DOM loaded...
-        // So we wait before real page DOM loaded...
-        QWebElement bodyElem = view->mainFrame()->findFirstElement("body");
-        if (!bodyElem.isNull() && !bodyElem.toInnerXml().trimmed().isEmpty()) {
-            QWebElement headElem = view->mainFrame()->findFirstElement("head");
-            if (headElem.isNull() || headElem.toInnerXml().trimmed().isEmpty()) {
-                qDebug("... html head not loaded ... wait...");
-                return false;
-            }
-
-            //qDebug() << "... head element content:\n" << headElem.toInnerXml();
-
-            // http://stackoverflow.com/a/5313735
-            QString content;
-            content = "<style type=\"text/css\">\n";
-            content += "body, div, p, span, h1, h2, h3, h4, h5, h6, caption, td, li, dt, dd {\n";
-            content += " -moz-user-select: none;\n";
-            content += " -khtml-user-select: none;\n";
-            content += " -webkit-user-select: none;\n";
-            content += " user-select: none;\n";
-            content += " }\n";
-            content += "</style>\n";
-
-            // Ugly hack, but it's works...
-            if (!headElem.toInnerXml().contains(content)) {
-                headElem.setInnerXml(headElem.toInnerXml() + content);
-                qDebug("... html head loaded ... hack inserted...");
-            } else {
-                qDebug("... html head loaded ... hack already inserted...");
-            }
-
-            //headElem = view->mainFrame()->findFirstElement("head");
-            //qDebug() << "... head element content after:\n" << headElem.toInnerXml() ;
-
-        } else {
-            qDebug("... html body not loaded ... wait...");
-            return false;
-        }
+        return view->disableTextSelection();
     }
 
     return true;
@@ -803,12 +765,6 @@ void MainWindow::attachJavascripts()
 
     QStringList scripts = qwkSettings->getQStringList("attach/javascripts");
     if (!scripts.length()) {
-        return;
-    }
-
-    QWebElement bodyElem = view->mainFrame()->findFirstElement("body");
-    if (bodyElem.isNull() || bodyElem.toInnerXml().trimmed().isEmpty()) {
-        // No body here... We need something in <body> to interact with?
         return;
     }
 
@@ -844,7 +800,7 @@ void MainWindow::attachJavascripts()
         }
     }
     if (countScripts > 0 && content.trimmed().length() > 0) {
-        bodyElem.setInnerXml(bodyElem.toInnerXml() + content);
+        view->addHTML(content, WebView::BODY);
 
         qDebug() << "Page loaded, found " << countScripts << " user javascript files...";
     }
@@ -856,12 +812,6 @@ void MainWindow::attachStyles()
 
     QStringList styles = qwkSettings->getQStringList("attach/styles");
     if (!styles.length()) {
-        return;
-    }
-
-    QWebElement headElem = view->mainFrame()->findFirstElement("head");
-    if (headElem.isNull() || headElem.toInnerXml().trimmed().isEmpty()) {
-        // Page without head... We need something in <head> to interact with?
         return;
     }
 
@@ -898,7 +848,7 @@ void MainWindow::attachStyles()
     }
 
     if (countStyles > 0 && content.trimmed().length() > 0) {
-        headElem.setInnerXml(headElem.toInnerXml() + content);
+        view->addHTML(content, WebView::HEAD);
 
         qDebug() << "Page loaded, found " << countStyles << " user style files...";
     }

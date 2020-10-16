@@ -90,3 +90,9 @@ QString QwkWebPage::userAgentForUrl(const QUrl & url) const
 
     return QWebPage::userAgentForUrl(url);
 }
+
+
+void QwkWebPage::runJavaScript(const QString& scriptSource)
+{
+    mainFrame()->evaluateJavaScript(scriptSource);
+}

@@ -19,6 +19,9 @@ public:
 
     static QString userAgent;
 
+    //Needed for API compatibility with WebEngine
+    void runJavaScript(const QString& scriptSource);
+
 private:
     qint64  javascriptHangStarted;
 

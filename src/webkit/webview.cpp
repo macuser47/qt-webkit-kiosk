@@ -451,3 +451,77 @@ void WebView::applySettings(QwkSettings* qwkSettings)
         qwkSettings->getBool("security/local_content_can_access_remote_urls")
     );
 }
+
+void WebView::hideScrollbars()
+{
+    mainFrame()->setScrollBarPolicy( Qt::Vertical, Qt::ScrollBarAlwaysOff );
+    mainFrame()->setScrollBarPolicy( Qt::Horizontal, Qt::ScrollBarAlwaysOff );
+}
+
+void WebView::showScrollbars()
+{
+    mainFrame()->setScrollBarPolicy( Qt::Vertical, Qt::ScrollBarAsNeeded);
+    mainFrame()->setScrollBarPolicy( Qt::Horizontal, Qt::ScrollBarAsNeeded);
+}
+
+bool WebView::disableTextSelection()
+{
+    // Then webkit loads page and it's "empty" - empty html DOM loaded...
+    // So we wait before real page DOM loaded...
+    QWebElement bodyElem = mainFrame()->findFirstElement("body");
+    if (!bodyElem.isNull() && !bodyElem.toInnerXml().trimmed().isEmpty()) {
+        QWebElement headElem = mainFrame()->findFirstElement("head");
+        if (headElem.isNull() || headElem.toInnerXml().trimmed().isEmpty()) {
+        qDebug("... html head not loaded ... wait...");
+        return false;
+        }
+
+        //qDebug() << "... head element content:\n" << headElem.toInnerXml();
+
+        // http://stackoverflow.com/a/5313735
+        QString content;
+        content = "<style type=\"text/css\">\n";
+        content += "body, div, p, span, h1, h2, h3, h4, h5, h6, caption, td, li, dt, dd {\n";
+        content += " -moz-user-select: none;\n";
+        content += " -khtml-user-select: none;\n";
+        content += " -webkit-user-select: none;\n";
+        content += " user-select: none;\n";
+        content += " }\n";
+        content += "</style>\n";
+
+        // Ugly hack, but it's works...
+        if (!headElem.toInnerXml().contains(content)) {
+        headElem.setInnerXml(headElem.toInnerXml() + content);
+        qDebug("... html head loaded ... hack inserted...");
+        } else {
+        qDebug("... html head loaded ... hack already inserted...");
+        }
+
+        //headElem = view->mainFrame()->findFirstElement("head");
+        //qDebug() << "... head element content after:\n" << headElem.toInnerXml() ;
+
+    } else {
+        qDebug("... html body not loaded ... wait...");
+        return false;
+    }
+    return true;
+}
+
+void WebView::addHTML(QString content, TargetTag appendTo)
+{
+    QWebElement targetElem;
+    switch (appendTo) {
+    case TargetTag::BODY:
+        targetElem = mainFrame()->findFirstElement("body");
+        break;
+    case TargetTag::HEAD:
+        targetElem = mainFrame()->findFirstElement("head");
+        break;
+    }
+    if (targetElem.isNull() || targetElem.toInnerXml().trimmed().isEmpty()) {
+        // No body here... We need something in <body> to interact with?
+        return;
+    }
+
+    targetElem.setInnerXml(targetElem.toInnerXml() + content);
+}

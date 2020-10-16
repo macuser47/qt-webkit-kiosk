@@ -442,3 +442,58 @@ void WebView::applySettings(QwkSettings* qwkSettings)
     );
 
 }
+
+void WebView::hideScrollbars()
+{
+#if QT_VERSION >= 0x051000
+    settings()->setAttribute(QWebEngineSettings::ShowScrollbars, false);
+#else
+    qDebug() << "Scrollbar hiding unsupported for Qt<5.10 with WebEngine.";
+#endif
+}
+
+void WebView::showScrollbars()
+{
+#if QT_VERSION >= 0x051000
+    settings()->setAttribute(QWebEngineSettings::ShowScrollbars, true);
+#endif
+}
+
+bool WebView::disableTextSelection()
+{
+    QWebEngineScript* injectionScript = new QWebEngineScript();
+    QString code = "\
+var style = document.createElement('style');\
+style.innerHtml = '\
+        body, div, p, span, h1, h2, h3, h4, h5, h6, caption, td, li, dt, dd {\
+        {\
+          -moz-user-select: none;\
+          -khtml-user-select: none;\
+          -webkit-user-select: none;\
+          user-select: none;\
+        }\
+';\
+document.head.appendChild(style);\
+    ";
+    injectionScript->setSourceCode(code);
+    page()->scripts().insert(*injectionScript);
+    return true;
+}
+
+void WebView::addHTML(QString content, TargetTag appendTo)
+{
+    QWebEngineScript* injectionScript = new QWebEngineScript();
+    QString code;
+    code += "var content='" + content + "';";
+    switch (appendTo) {
+    case TargetTag::BODY:
+        code += "document.body.insertAdjacentHTML('beforeend', content);";
+        break;
+    case TargetTag::HEAD:
+        code += "document.head.inssertAdjacentHTML('beforeend', content);";
+        break;
+    }
+
+    injectionScript->setSourceCode(code);
+    page()->scripts().insert(*injectionScript);
+}

@@ -43,6 +43,15 @@ public:
     //Compatibility functions for WebKit/WebEngine API compatibility
     QWebEnginePage* mainFrame();
     void applySettings(QwkSettings* settings);
+    void hideScrollbars();
+    void showScrollbars();
+    bool disableTextSelection();
+
+    enum TargetTag {
+        HEAD,
+        BODY
+    };
+    void addHTML(QString code, TargetTag appendTo);
 
 public slots:
     void handlePrintRequested();
