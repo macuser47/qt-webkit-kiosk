@@ -35,7 +35,7 @@ else: {
         HEADERS += webkit/webview.h \
                                 webkit/fakewebview.h \
                                 webkit/qwk_webpage.h
-#}
+}
 
 contains(QT_VERSION, ^5\\.[0-9]+\\..*) {
     QT       += widgets printsupport
