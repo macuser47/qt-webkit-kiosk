@@ -502,6 +502,7 @@ void MainWindow::handleQwkNetworkError(QNetworkReply::NetworkError error, QStrin
     }*/
 
     // Unknown error if eth0 if up but cable out
+#ifdef WEB_KIT
     if (error == QNetworkReply::UnknownNetworkError) {
         if (message.contains("Network access is disabled")) {
             // Check all interfaces if them has link up
@@ -546,6 +547,7 @@ void MainWindow::handleQwkNetworkError(QNetworkReply::NetworkError error, QStrin
 
         }
     }
+#endif
 
     if (messagesBox) {
         messagesBox->show();
@@ -964,6 +966,7 @@ void MainWindow::unixSignalUsr2()
  */
 void MainWindow::networkStateChanged(QNetworkSession::State state)
 {
+#ifdef WEB_KIT
     qDebug() << QDateTime::currentDateTime().toString()
              << "MainWindow::networkStateChanged -"
              << state
@@ -1034,6 +1037,7 @@ void MainWindow::networkStateChanged(QNetworkSession::State state)
            messagesBox->setText(txt + QDateTime::currentDateTime().toString() +  " :: " + errStr);
        }
     }
+#endif
 }
 
 void MainWindow::handleQwkNetworkReplyUrl(QUrl url)
