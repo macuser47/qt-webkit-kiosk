@@ -831,6 +831,7 @@ void MainWindow::attachJavascripts()
         if (finfo.isFile()) {
             qDebug("-- it's local file");
             QFile f(file_name);
+            f.open(QIODevice::ReadOnly);
             content += "\n<script type=\"text/javascript\">";
             content += QString(f.readAll());
             content += "</script>\n";
@@ -883,6 +884,7 @@ void MainWindow::attachStyles()
         if (finfo.isFile()) {
             qDebug("-- it's local file");
             QFile f(file_name);
+            f.open(QIODevice::ReadOnly);
             content += "\n<style type=\"text/css\">\n";
             content += QString(f.readAll());
             content += "</style>\n";
