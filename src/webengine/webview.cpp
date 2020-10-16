@@ -80,10 +80,10 @@ void WebView::setPage(QwkWebPage *page)
 {
     QString ua = qwkSettings->getQString("browser/custom_user_agent_header");
     if (ua.length()) {
-        QwkWebPage::userAgent = ua;
+        page->profile()->setHttpUserAgent(ua);
     }
 
-    QWebView::setPage(page);
+    QWebEngineView::setPage(page);
     initSignals();
 }
 

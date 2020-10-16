@@ -14,11 +14,6 @@ public:
 
     QwkSettings* getSettings();
 
-    static QString userAgent;
-
-    //Needed for API compatibility with WebKit
-    QwkWebPage* mainFrame();
-
 private:
     qint64  javascriptHangStarted;
 
@@ -29,10 +24,6 @@ public Q_SLOTS:
 
 protected:
     void javaScriptConsoleMessage(QWebEnginePage::JavaScriptConsoleMessageLevel level, const QString &message, int lineNumber, const QString &sourceID);
-
-    //TODO: replace with https://doc.qt.io/qt-5/qwebengineprofile.html
-    //virtual QString userAgentForUrl(const QUrl & url) const;
-
 };
 
 #endif // QWK_WEBPAGE_H

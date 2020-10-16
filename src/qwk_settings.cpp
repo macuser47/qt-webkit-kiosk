@@ -151,6 +151,10 @@ void QwkSettings::loadSettings(QString ini_file)
     if (!qsettings->contains("browser/show_js_console_messages")) {
         qsettings->setValue("browser/show_js_console_messages", false);
     }
+    // Default to most verbose javascript loglevel
+    if (!qsettings->contains("browser/js_console_loglevel")) {
+        qsettings->setValue("browser/js_console_loglevel", 0);
+    }
     // Don't break on SSL errors
     if (!qsettings->contains("browser/ignore_ssl_errors")) {
         qsettings->setValue("browser/ignore_ssl_errors", true);

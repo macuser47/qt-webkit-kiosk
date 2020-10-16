@@ -28,11 +28,6 @@ QwkSettings* QwkWebPage::getSettings()
     return NULL;
 }
 
-QwkWebPage* QwkWebPage::mainFrame()
-{
-    return this;
-}
-
 /*
 bool QwkWebPage::shouldInterruptJavaScript()
 {
@@ -73,26 +68,20 @@ bool QwkWebPage::shouldInterruptJavaScript()
 }
 */
 
-void QwkWebPage::javaScriptConsoleMessage( const QString & message, int lineNumber, const QString & sourceID )
+void QwkWebPage::javaScriptConsoleMessage(QWebEnginePage::JavaScriptConsoleMessageLevel level, const QString &message,
+                                          int lineNumber, const QString &sourceID)
 {
     QwkSettings *s = this->getSettings();
 
+    QString levelName((QString[3]){"INFO", "WARNING", "ERROR"}[level]);
+
     if (s != NULL) {
         if (s->getBool("browser/show_js_console_messages")) {
-            //do something!
-            qInfo() << QDateTime::currentDateTime().toString() << "JS Console message:" << message << "Line:" << lineNumber << "Source:" << sourceID;
+            if (level <= s->getUInt("browser/js_console_loglevel")) {
+                //do something!
+                qInfo() << QDateTime::currentDateTime().toString() << "JS Console message: [" << levelName << "] " << message <<
+                           "Line:" << lineNumber << "Source:" << sourceID;
+            }
         }
     }
-}
-
-
-QString QwkWebPage::userAgent = "";
-
-QString QwkWebPage::userAgentForUrl(const QUrl & url) const
-{
-    if (QwkWebPage::userAgent.length()) {
-        return QwkWebPage::userAgent;
-    }
-
-    return QWebPage::userAgentForUrl(url);
 }
