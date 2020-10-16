@@ -1,12 +1,8 @@
 #ifndef WEBVIEW_H
 #define WEBVIEW_H
 
-#include <QtWebKit>
-
-#ifdef QT5
-#include <QtWebKitWidgets/QWebView>
-#include <QtWebKitWidgets/QWebFrame>
-#endif
+#include <QtWebEngineWidgets/QWebEngineView>
+#include <QtWebEngineWidgets/QWebEnginePage>
 
 #include <QPrinter>
 #include "qplayer.h"
@@ -14,7 +10,7 @@
 #include "fakewebview.h"
 #include "qwk_settings.h"
 
-class WebView : public QWebView
+class WebView : public QWebEngineView
 {
     Q_OBJECT
 
@@ -32,7 +28,7 @@ public:
     void resetLoadTimer();
     void stopLoadTimer();
 
-    QWebView *createWindow(QWebPage::WebWindowType type);
+    QWebEngineView *createWindow(QWebEnginePage::WebWindowType type);
 
     void playSound(QString soundSetting);
 
@@ -44,15 +40,19 @@ public:
     void scrollHome();
     void scrollEnd();
 
+    //Compatibility functions for WebKit/WebEngine API compatibility
+    QWebEnginePage* mainFrame();
+    void applySettings(QwkSettings* settings);
+
 public slots:
-    void handlePrintRequested(QWebFrame *);
+    void handlePrintRequested();
     void handleFakeviewUrlChanged(const QUrl &);
     void handleFakeviewLoadFinished(bool);
 
 protected:
     void mousePressEvent(QMouseEvent *event);
     QPlayer *getPlayer();
-    QWebView *getFakeLoader();
+    QWebEngineView *getFakeLoader();
     QTimer *getLoadTimer();
 
 signals:
@@ -74,8 +74,8 @@ private slots:
     void handleWindowCloseRequested();
 
     void handleNetworkReply(QNetworkReply *reply);
-    void handleAuthReply(QNetworkReply *aReply, QAuthenticator *aAuth);
-    void handleProxyAuthReply(const QNetworkProxy &proxy, QAuthenticator *aAuth);
+    void handleAuthReply(const QUrl& aUrl, QAuthenticator *aAuth);
+    void handleProxyAuthReply(const QUrl& aUrl, QAuthenticator *aAuth, const QString& proxyHost);
 
     void handleLoadTimerTimeout();
 };

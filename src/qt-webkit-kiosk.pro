@@ -4,19 +4,43 @@
 #
 #-------------------------------------------------
 
-QT       = core gui network webkit
-
-contains(QT_VERSION, ^5\\.[0-9]+\\..*) {
-    QT       += widgets webkitwidgets printsupport
-    DEFINES  += QT5
-}
+QT       = core gui network
 
 CONFIG += console link_pkgconfig debug
 TARGET = qt-webkit-kiosk
 TEMPLATE = app
 VERSION = 1.99.11-dev
 
-DEFINES += WEB_KIT
+qtHaveModule(webenginewidgets): {
+        QT += webenginewidgets
+        DEFINES += WEB_ENGINE
+        SOURCES += webengine/webview.cpp \
+                                webengine/fakewebview.cpp \
+                                webengine/qwk_webpage.cpp
+        HEADERS += webengine/webview.h \
+                                webengine/fakewebview.h \
+                                webengine/qwk_webpage.h
+}
+else: {
+        QT += webkit
+        DEFINES += WEB_KIT
+
+        contains(QT_VERSION, ^5\\.[0-9]+\\..*) {
+                QT += webkitwidgets
+        }
+
+        SOURCES += webkit/webview.cpp \
+                                webkit/fakewebview.cpp \
+                                webkit/qwk_webpage.cpp
+        HEADERS += webkit/webview.h \
+                                webkit/fakewebview.h \
+                                webkit/qwk_webpage.h
+#}
+
+contains(QT_VERSION, ^5\\.[0-9]+\\..*) {
+    QT       += widgets printsupport
+    DEFINES  += QT5
+}
 
 CONFIG(debug, debug|release) {
 # here comes debug specific statements
@@ -145,18 +169,14 @@ message(- VERSION: $${VERSION})
 
 SOURCES += main.cpp\
     mainwindow.cpp \
-    qwk_webpage.cpp \
     anyoption.cpp \
     cachingnm.cpp \
     unixsignals.cpp \
     socketpair.cpp \
     persistentcookiejar.cpp \
-    qwk_settings.cpp \
-    webkit/fakewebview.cpp \
-    webkit/webview.cpp
+    qwk_settings.cpp
 
 HEADERS  += mainwindow.h \
-    qwk_webpage.h \
     anyoption.h \
     config.h \
     qplayer.h \
@@ -165,8 +185,6 @@ HEADERS  += mainwindow.h \
     socketpair.h \
     persistentcookiejar.h \
     qwk_settings.h \
-    webkit/fakewebview.h \
-    webkit/webview.h \
     qweb.h
 
 # DEBUG

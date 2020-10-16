@@ -3,13 +3,9 @@
 
 #include <QtNetwork>
 
-#ifdef QT5
-#include <QtWebKitWidgets/QWebView>
-#else
-#include <QWebView>
-#endif
+#include <QtWebEngineWidgets/QWebEngineView>
 
-class FakeWebView : public QWebView
+class FakeWebView : public QWebEngineView
 {
     Q_OBJECT
 
@@ -17,7 +13,7 @@ public:
     explicit FakeWebView(QWidget* parent = 0);
 
     void load(const QUrl& url);
-    void load(const QNetworkRequest& request, QNetworkAccessManager::Operation operation = QNetworkAccessManager::GetOperation, const QByteArray &body = QByteArray());
+    void load(const QWebEngineHttpRequest& request);
     void setUrl(const QUrl &url);
 
 };

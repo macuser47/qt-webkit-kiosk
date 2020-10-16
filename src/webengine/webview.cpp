@@ -2,10 +2,11 @@
 
 #include <QtDebug>
 #include <QtGui>
-#include <QtWebKit>
 #include "webview.h"
 #include <signal.h>
 #include "unixsignals.h"
+
+#include <QtWebEngineWidgets>
 
 #ifdef QT5
 #include <QNetworkReply>
@@ -15,7 +16,7 @@
 #endif
 
 
-WebView::WebView(QWidget* parent): QWebView(parent)
+WebView::WebView(QWidget* parent): QWebEngineView(parent)
 {
     player = NULL;
     loader = NULL;
@@ -28,11 +29,13 @@ WebView::WebView(QWidget* parent): QWebView(parent)
  */
 void WebView::initSignals()
 {
-	#ifndef QT_NO_SSL
+    #ifndef QT_NO_SSL
+    /* TODO: replace with certificateError() override in QWebPage
     connect(page()->networkAccessManager(),
             SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError> & )),
             this,
             SLOT(handleSslErrors(QNetworkReply*, const QList<QSslError> & )));
+    */
 	#endif
 
     connect(page(),
@@ -41,27 +44,35 @@ void WebView::initSignals()
             SLOT(handleWindowCloseRequested()));
 
     connect(page(),
-            SIGNAL(printRequested(QWebFrame*)),
+            SIGNAL(printRequested()),
             this,
-            SLOT(handlePrintRequested(QWebFrame*)));
+            SLOT(handlePrintRequested()));
 
     /*handle network reply*/
+    /* TODO: replace with...nothing? */
+    /*
     connect(page()->networkAccessManager(),
             SIGNAL(finished(QNetworkReply*)),
             this,
             SLOT(handleNetworkReply(QNetworkReply*)));
+    */
 
     /*handle auth request to be in stable state*/
+    /* TODO: replace with just page() and change signature
     connect(page()->networkAccessManager(),
            SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)),
             this,
             SLOT(handleAuthReply(QNetworkReply*,QAuthenticator*)));
+    */
 
     /*handle proxy auth request to be in stable state*/
+    /* TODO: replace with just page() and change signature*/
+    /*
     connect(page()->networkAccessManager(),
            SIGNAL(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)),
             this,
             SLOT(handleProxyAuthReply(QNetworkProxy,QAuthenticator*)));
+    */
 
 }
 
@@ -342,7 +353,7 @@ QWebView *WebView::createWindow(QWebPage::WebWindowType type)
     return getFakeLoader();
 }
 
-void WebView::handlePrintRequested(QWebFrame *wf)
+void WebView::handlePrintRequested(/*QWebFrame *wf*/)
 {
     qDebug() << QDateTime::currentDateTime().toString() << "Handle printRequested...";
     if (qwkSettings->getBool("printing/enable")) {
@@ -393,4 +404,41 @@ void WebView::scrollHome()
 {
     QWebFrame* frame = this->page()->mainFrame();
     frame->setScrollPosition(QPoint(0, 0));
+}
+
+QWebEnginePage WebView::mainFrame()
+{
+    return page();
+}
+
+void WebView::applySettings(QwkSettings* qwkSettings)
+{
+    settings()->setAttribute(QWebEngineSettings::JavascriptEnabled,
+        qwkSettings->getBool("browser/javascript")
+    );
+
+    settings()->setAttribute(QWebEngineSettings::JavascriptCanOpenWindows,
+        qwkSettings->getBool("browser/javascript_can_open_windows")
+    );
+
+    settings()->setAttribute(QWebEngineSettings::WebGLEnabled,
+        qwkSettings->getBool("browser/webgl")
+    );
+
+    settings()->setAttribute(QWebEngineSettings::PluginsEnabled,
+        qwkSettings->getBool("browser/plugins")
+    );
+
+    settings()->setAttribute(QWebEngineSettings::LocalStorageEnabled,
+        qwkSettings->getBool("localstorage/enable")
+    );
+
+#if QT_VERSION >= 0x050400
+    settings()->setAttribute(QWebEngineSettings::Accelerated2dCanvasEnabled, true);
+#endif
+
+    settings()->setAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls,
+        qwkSettings->getBool("security/local_content_can_access_remote_urls")
+    );
+
 }

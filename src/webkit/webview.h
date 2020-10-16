@@ -44,6 +44,10 @@ public:
     void scrollHome();
     void scrollEnd();
 
+    //Compatibility functions for WebKit/WebEngine API compatibility
+    QWebFrame* mainFrame();
+    void applySettings(QwkSettings* settings);
+
 public slots:
     void handlePrintRequested(QWebFrame *);
     void handleFakeviewUrlChanged(const QUrl &);

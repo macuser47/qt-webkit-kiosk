@@ -1,11 +1,13 @@
-#include <webkit/fakewebview.h>
+#include "fakewebview.h"
 
-FakeWebView::FakeWebView(QWidget *parent) : QWebView(parent)
+#include <QtWebEngineWidgets>
+
+FakeWebView::FakeWebView(QWidget *parent) : QWebEngineView(parent)
 {
-    this->settings()->setAttribute(QWebSettings::JavascriptEnabled, false);
-    this->settings()->setAttribute(QWebSettings::WebGLEnabled, false);
-    this->settings()->setAttribute(QWebSettings::JavaEnabled, false);
-    this->settings()->setAttribute(QWebSettings::PluginsEnabled, false);
+    this->settings()->setAttribute(QWebEngineSettings::JavascriptEnabled, false);
+    this->settings()->setAttribute(QWebEngineSettings::WebGLEnabled, false);
+    //this->settings()->setAttribute(QWebEngineSettings::JavaEnabled, false);
+    this->settings()->setAttribute(QWebEngineSettings::PluginsEnabled, false);
 }
 
 void FakeWebView::setUrl(const QUrl &url)
@@ -19,11 +21,7 @@ void FakeWebView::load(const QUrl &url)
     emit ( urlChanged( url ) );
 }
 
-void FakeWebView::load(const QNetworkRequest &request,
-                       QNetworkAccessManager::Operation operation,
-                       const QByteArray &body)
+void FakeWebView::load(const QWebEngineHttpRequest& request)
 {
-    Q_UNUSED(operation);
-    Q_UNUSED(body);
     emit ( urlChanged( request.url() ) );
 }

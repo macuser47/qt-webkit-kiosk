@@ -47,7 +47,6 @@
 #include <QProgressBar>
 #include <QMainWindow>
 #include <QtNetwork>
-#include <QtWebKit>
 
 #ifdef USE_TESTLIB
 #include <QtTest/QTestEventList>

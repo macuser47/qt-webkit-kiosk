@@ -43,13 +43,11 @@
 #include "config.h"
 #include "qinfo.h"
 #include "mainwindow.h"
-#include "qwk_webpage.h"
 
 #ifdef QT5
 #include <QStandardPaths>
 #include <QApplication>
 #include <QDesktopWidget>
-#include <QtWebKitWidgets/QWebFrame>
 #endif
 
 #include "cachingnm.h"
@@ -246,48 +244,16 @@ void MainWindow::init(AnyOption *opts)
         view->page()->setNetworkAccessManager(nm);
     }
 
+    /* TODO: implement this for WebEngine
     if (qwkSettings->getBool("browser/cookiejar")) {
         view->page()->networkAccessManager()->setCookieJar(new PersistentCookieJar());
     }
+    */
 
-    view->settings()->setAttribute(QWebSettings::JavascriptEnabled,
-        qwkSettings->getBool("browser/javascript")
-    );
+    view->applySettings(qwkSettings);
 
-    view->settings()->setAttribute(QWebSettings::JavascriptCanOpenWindows,
-        qwkSettings->getBool("browser/javascript_can_open_windows")
-    );
 
-    view->settings()->setAttribute(QWebSettings::JavascriptCanCloseWindows,
-        qwkSettings->getBool("browser/javascript_can_close_windows")
-    );
-
-    view->settings()->setAttribute(QWebSettings::WebGLEnabled,
-        qwkSettings->getBool("browser/webgl")
-    );
-
-    view->settings()->setAttribute(QWebSettings::JavaEnabled,
-        qwkSettings->getBool("browser/java")
-    );
-
-    view->settings()->setAttribute(QWebSettings::PluginsEnabled,
-        qwkSettings->getBool("browser/plugins")
-    );
-
-    view->settings()->setAttribute(QWebSettings::LocalStorageEnabled, 
-        qwkSettings->getBool("localstorage/enable")
-    );
-
-#if QT_VERSION >= 0x050400
-    view->settings()->setAttribute(QWebSettings::Accelerated2dCanvasEnabled, true);
-#endif
-    view->settings()->setAttribute(QWebSettings::AcceleratedCompositingEnabled, true);
-#if QT_VERSION >= 0x050200
-    view->settings()->setAttribute(QWebSettings::CSSRegionsEnabled, true);
-    view->settings()->setAttribute(QWebSettings::CSSGridLayoutEnabled, true);
-#endif
-    view->settings()->setAttribute(QWebSettings::SiteSpecificQuirksEnabled, true);
-
+#ifdef WEB_KIT
     if (qwkSettings->getBool("inspector/enable")) {
         view->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
 
@@ -298,17 +264,14 @@ void MainWindow::init(AnyOption *opts)
         inspector->setWindowIcon(this->windowIcon());
         inspector->setPage(view->page());
     }
+#endif
 
-    view->settings()->setAttribute(QWebSettings::LocalContentCanAccessRemoteUrls,
-        qwkSettings->getBool("security/local_content_can_access_remote_urls")
-    );
-
-    connect(view->page()->mainFrame(), SIGNAL(titleChanged(QString)), SLOT(adjustTitle(QString)));
-    connect(view->page()->mainFrame(), SIGNAL(loadStarted()), SLOT(startLoading()));
-    connect(view->page()->mainFrame(), SIGNAL(urlChanged(const QUrl &)), SLOT(urlChanged(const QUrl &)));
+    connect(view->mainFrame(), SIGNAL(titleChanged(QString)), SLOT(adjustTitle(QString)));
+    connect(view->mainFrame(), SIGNAL(loadStarted()), SLOT(startLoading()));
+    connect(view->mainFrame(), SIGNAL(urlChanged(const QUrl &)), SLOT(urlChanged(const QUrl &)));
     connect(view->page(), SIGNAL(loadProgress(int)), SLOT(setProgress(int)));
-    connect(view->page()->mainFrame(), SIGNAL(loadFinished(bool)), SLOT(finishLoading(bool)));
-    connect(view->page()->mainFrame(), SIGNAL(iconChanged()), SLOT(pageIconLoaded()));
+    connect(view->mainFrame(), SIGNAL(loadFinished(bool)), SLOT(finishLoading(bool)));
+    connect(view->mainFrame(), SIGNAL(iconChanged()), SLOT(pageIconLoaded()));
     connect(view, SIGNAL(qwkNetworkError(QNetworkReply::NetworkError,QString)), SLOT(handleQwkNetworkError(QNetworkReply::NetworkError,QString)));
     connect(view, SIGNAL(qwkNetworkReplyUrl(QUrl)), SLOT(handleQwkNetworkReplyUrl(QUrl)));
 
@@ -696,7 +659,7 @@ void MainWindow::urlChanged(const QUrl &url)
     isUrlRealyChanged = true;
 
     if (qwkSettings->getReal("view/page_scale")) {
-        view->page()->mainFrame()->setZoomFactor(qwkSettings->getReal("view/page_scale"));
+        view->mainFrame()->setZoomFactor(qwkSettings->getReal("view/page_scale"));
     }
 
     view->resetLoadTimer();
@@ -759,7 +722,7 @@ void MainWindow::finishLoading(bool ok)
         attachStyles();
         attachJavascripts();
 
-        view->page()->mainFrame()->evaluateJavaScript("console.log('Test console log catchup by Qwk');");
+        view->mainFrame()->evaluateJavaScript("console.log('Test console log catchup by Qwk');");
 
         // 3. Focus window and click into it to stimulate event loop after signal handling
         putWindowUp();
@@ -777,8 +740,8 @@ bool MainWindow::hideScrollbars()
     if (qwkSettings->getBool("view/hide_scrollbars")) {
         qDebug("Try to hide scrollbars...");
 
-        view->page()->mainFrame()->setScrollBarPolicy( Qt::Vertical, Qt::ScrollBarAlwaysOff );
-        view->page()->mainFrame()->setScrollBarPolicy( Qt::Horizontal, Qt::ScrollBarAlwaysOff );
+        view->mainFrame()->setScrollBarPolicy( Qt::Vertical, Qt::ScrollBarAlwaysOff );
+        view->mainFrame()->setScrollBarPolicy( Qt::Horizontal, Qt::ScrollBarAlwaysOff );
     }
 
     return true;
@@ -793,9 +756,9 @@ bool MainWindow::disableSelection()
 
         // Then webkit loads page and it's "empty" - empty html DOM loaded...
         // So we wait before real page DOM loaded...
-        QWebElement bodyElem = view->page()->mainFrame()->findFirstElement("body");
+        QWebElement bodyElem = view->mainFrame()->findFirstElement("body");
         if (!bodyElem.isNull() && !bodyElem.toInnerXml().trimmed().isEmpty()) {
-            QWebElement headElem = view->page()->mainFrame()->findFirstElement("head");
+            QWebElement headElem = view->mainFrame()->findFirstElement("head");
             if (headElem.isNull() || headElem.toInnerXml().trimmed().isEmpty()) {
                 qDebug("... html head not loaded ... wait...");
                 return false;
@@ -822,7 +785,7 @@ bool MainWindow::disableSelection()
                 qDebug("... html head loaded ... hack already inserted...");
             }
 
-            //headElem = view->page()->mainFrame()->findFirstElement("head");
+            //headElem = view->mainFrame()->findFirstElement("head");
             //qDebug() << "... head element content after:\n" << headElem.toInnerXml() ;
 
         } else {
@@ -843,7 +806,7 @@ void MainWindow::attachJavascripts()
         return;
     }
 
-    QWebElement bodyElem = view->page()->mainFrame()->findFirstElement("body");
+    QWebElement bodyElem = view->mainFrame()->findFirstElement("body");
     if (bodyElem.isNull() || bodyElem.toInnerXml().trimmed().isEmpty()) {
         // No body here... We need something in <body> to interact with?
         return;
@@ -895,7 +858,7 @@ void MainWindow::attachStyles()
         return;
     }
 
-    QWebElement headElem = view->page()->mainFrame()->findFirstElement("head");
+    QWebElement headElem = view->mainFrame()->findFirstElement("head");
     if (headElem.isNull() || headElem.toInnerXml().trimmed().isEmpty()) {
         // Page without head... We need something in <head> to interact with?
         return;
