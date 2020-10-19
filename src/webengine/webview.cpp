@@ -41,10 +41,12 @@ void WebView::initSignals()
             this,
             SLOT(handleWindowCloseRequested()));
 
+#if QT_VERSION >= 0x051200
     connect(page(),
             SIGNAL(printRequested()),
             this,
             SLOT(handlePrintRequested()));
+#endif
 
     /*handle auth request to be in stable state*/
     connect(page(),
