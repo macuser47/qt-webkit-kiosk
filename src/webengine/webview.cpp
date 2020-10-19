@@ -178,7 +178,7 @@ void WebView::mousePressEvent(QMouseEvent *event)
         qDebug() << QDateTime::currentDateTime().toString() << "Window Clicked!";
         playSound("event-sounds/window-clicked");
     }
-    QWebView::mousePressEvent(event);
+    QWebEngineView::mousePressEvent(event);
 }
 
 
@@ -188,13 +188,13 @@ void WebView::mousePressEvent(QMouseEvent *event)
  * Just need to catch url setup
  * @return FakeWebView
  */
-QWebView *WebView::getFakeLoader()
+QWebEngineView *WebView::getFakeLoader()
 {
     if (!loader) {
         qDebug() << QDateTime::currentDateTime().toString() << "New fake webview loader";
         loader = new FakeWebView(this);
         loader->hide();
-        QWebPage *newWeb = new QWebPage(loader);
+        QWebEnginePage *newWeb = new QWebEnginePage(loader);
         loader->setPage(newWeb);
 
         connect(loader, SIGNAL(urlChanged(const QUrl&)), SLOT(handleFakeviewUrlChanged(const QUrl&)));
@@ -301,9 +301,9 @@ void WebView::playSound(QString soundSetting)
     }
 }
 
-QWebView *WebView::createWindow(QWebPage::WebWindowType type)
+QWebEngineView *WebView::createWindow(QWebEnginePage::WebWindowType type)
 {
-    if (type != QWebPage::WebBrowserWindow) {
+    if (type != QWebEnginePage::WebBrowserWindow) {
         return NULL;
     }
     qDebug() << QDateTime::currentDateTime().toString() << "Handle createWindow...";
@@ -364,7 +364,7 @@ void WebView::scrollHome()
     frame->setScrollPosition(QPoint(0, 0));
 }
 
-QWebEnginePage WebView::mainFrame()
+QWebEnginePage* WebView::mainFrame()
 {
     return page();
 }
