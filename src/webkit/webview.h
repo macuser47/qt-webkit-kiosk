@@ -59,6 +59,9 @@ public:
     };
     void addHTML(QString content, TargetTag appendTo);
 
+    //Slot registry abstractions
+    void registerIconChanged(QObject* caller, void (QObject::*handler) (const QIcon&));
+
 public slots:
     void handlePrintRequested(QWebFrame *);
     void handleFakeviewUrlChanged(const QUrl &);

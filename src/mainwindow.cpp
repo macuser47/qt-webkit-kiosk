@@ -268,9 +268,10 @@ void MainWindow::init(AnyOption *opts)
     connect(view->mainFrame(), SIGNAL(urlChanged(const QUrl &)), SLOT(urlChanged(const QUrl &)));
     connect(view->page(), SIGNAL(loadProgress(int)), SLOT(setProgress(int)));
     connect(view->mainFrame(), SIGNAL(loadFinished(bool)), SLOT(finishLoading(bool)));
-    connect(view->mainFrame(), SIGNAL(iconChanged()), SLOT(pageIconLoaded()));
     connect(view, SIGNAL(qwkNetworkError(QNetworkReply::NetworkError,QString)), SLOT(handleQwkNetworkError(QNetworkReply::NetworkError,QString)));
     connect(view, SIGNAL(qwkNetworkReplyUrl(QUrl)), SLOT(handleQwkNetworkReplyUrl(QUrl)));
+
+    view->registerIconChanged(this, static_cast<void (QObject::*) (const QIcon&)>(&MainWindow::pageIconLoaded));
 
     QNetworkConfigurationManager manager;
     QNetworkConfiguration cfg = manager.defaultConfiguration();
@@ -572,9 +573,9 @@ void MainWindow::desktopResized(int p)
  * @brief MainWindow::pageIconLoaded
  * This is triggered by WebView->page()->mainFrame now
  */
-void MainWindow::pageIconLoaded()
+void MainWindow::pageIconLoaded(const QIcon& icon)
 {
-    setWindowIcon(view->icon());
+    setWindowIcon(icon);
 }
 
 /**

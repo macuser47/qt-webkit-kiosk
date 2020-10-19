@@ -82,7 +82,7 @@ protected slots:
     void startLoading();
     void urlChanged(const QUrl &);
     void finishLoading(bool);
-    void pageIconLoaded();
+    void pageIconLoaded(const QIcon &);
 
     void desktopResized(int p);
 

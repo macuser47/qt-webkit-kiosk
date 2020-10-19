@@ -448,3 +448,10 @@ void WebView::addHTML(QString content, TargetTag appendTo)
     injectionScript->setSourceCode(code);
     page()->scripts().insert(*injectionScript);
 }
+
+void WebView::registerIconChanged(QObject* caller, void (QObject::*handler) (const QIcon&))
+{
+    connect(mainFrame(), &QwkWebPage::iconChanged, [=](const QIcon& icon){
+        (caller->*handler) (icon);
+    });
+}

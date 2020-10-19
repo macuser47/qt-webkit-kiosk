@@ -524,3 +524,12 @@ void WebView::addHTML(QString content, TargetTag appendTo)
 
     targetElem.setInnerXml(targetElem.toInnerXml() + content);
 }
+
+void WebView::registerIconChanged(QObject* caller, void (QObject::*handler) (const QIcon&))
+{
+    connect(mainFrame(), &QWebFrame::iconChanged, this, [=](){
+        (caller->*handler)(this->icon());
+    });
+}
+
+
