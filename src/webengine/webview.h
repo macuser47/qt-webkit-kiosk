@@ -40,6 +40,8 @@ public:
     void scrollHome();
     void scrollEnd();
 
+    void goBack();
+
     //Compatibility functions for WebKit/WebEngine API compatibility
     QWebEnginePage* mainFrame();
     void applySettings(QwkSettings* settings);

@@ -441,7 +441,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
         }
         break;
     case Qt::Key_Backspace:
-        view->page()->triggerAction(QWebPage::Back);
+        view->goBack();
         break;
     case Qt::Key_Q:
         if (int(event->modifiers()) == Qt::CTRL) {

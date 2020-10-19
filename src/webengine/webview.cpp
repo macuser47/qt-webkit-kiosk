@@ -382,11 +382,15 @@ void WebView::scrollHome()
     page()->runJavaScript(QString("window.scrollTo(0, 0);"));
 }
 
+void WebView::goBack()
+{
+    page()->triggerAction(QWebEnginePage::Back);
+}
+
 QWebEnginePage* WebView::mainFrame()
 {
     return page();
 }
-
 
 void WebView::hideScrollbars()
 {

@@ -441,11 +441,15 @@ void WebView::scrollHome()
     frame->setScrollPosition(QPoint(0, 0));
 }
 
+void WebView::goBack()
+{
+    page()->triggerAction(QWebPage::Back);
+}
+
 QWebFrame* WebView::mainFrame()
 {
     return page()->mainFrame();
 }
-
 
 void WebView::hideScrollbars()
 {
