@@ -82,9 +82,8 @@ private slots:
     #endif
     void handleWindowCloseRequested();
 
-    void handleNetworkReply(QNetworkReply *reply);
-    void handleAuthReply(const QUrl& aUrl, QAuthenticator *aAuth);
-    void handleProxyAuthReply(const QUrl& aUrl, QAuthenticator *aAuth, const QString& proxyHost);
+    void handleAuthReply(const QUrl& aUrl, QAuthenticator* aAuth);
+    void handleProxyAuthReply(const QUrl& aUrl, QAuthenticator* aAuth, const QString& proxyHost);
 
     void handleLoadTimerTimeout();
 };

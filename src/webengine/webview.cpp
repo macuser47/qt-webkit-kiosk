@@ -31,10 +31,10 @@ void WebView::initSignals()
 {
     #ifndef QT_NO_SSL
     connect(page(),
-            SIGNAL(qwkNetworkError(QNetworkReply::NetworkError error, QString message)),
+            SIGNAL(qwkNetworkError(QNetworkReply::NetworkError, QString)),
             this,
-            SLOT(forwardPageNetworkErrors(QNetworkReply::NetworkError error, QString message)));
-	#endif
+            SLOT(forwardPageNetworkErrors(QNetworkReply::NetworkError, QString)));
+    #endif
 
     connect(page(),
             SIGNAL(windowCloseRequested()),
@@ -46,31 +46,17 @@ void WebView::initSignals()
             this,
             SLOT(handlePrintRequested()));
 
-    /*handle network reply*/
-    /* TODO: replace with...nothing? */
-    /*
-    connect(page()->networkAccessManager(),
-            SIGNAL(finished(QNetworkReply*)),
-            this,
-            SLOT(handleNetworkReply(QNetworkReply*)));
-    */
-
     /*handle auth request to be in stable state*/
-    /* TODO: replace with just page() and change signature
-    connect(page()->networkAccessManager(),
-           SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)),
+    connect(page(),
+            SIGNAL(authenticationRequired(const QUrl&, QAuthenticator*)),
             this,
-            SLOT(handleAuthReply(QNetworkReply*,QAuthenticator*)));
-    */
+            SLOT(handleAuthReply(const QUrl&, QAuthenticator*)));
 
     /*handle proxy auth request to be in stable state*/
-    /* TODO: replace with just page() and change signature*/
-    /*
-    connect(page()->networkAccessManager(),
-           SIGNAL(proxyAuthenticationRequired(QNetworkProxy,QAuthenticator*)),
+    connect(page(),
+            SIGNAL(proxyAuthenticationRequired(const QUrl&, QAuthenticator*, const QString&)),
             this,
-            SLOT(handleProxyAuthReply(QNetworkProxy,QAuthenticator*)));
-    */
+            SLOT(handleProxyAuthReply(const QUrl&, QAuthenticator*, const QString&)));
 
 }
 
@@ -155,33 +141,19 @@ void WebView::forwardPageNetworkErrors(QNetworkReply::NetworkError error, QStrin
 }
 #endif
 
-void WebView::handleNetworkReply(QNetworkReply* reply)
+void WebView::handleAuthReply(const QUrl& aUrl, QAuthenticator* aAuth)
 {
-    if ( reply ) {
-        qDebug() << QDateTime::currentDateTime().toString() << "handleNetworkReply URL:" << reply->request().url().toString();
-        if( reply->error()) {
-            QString errStr = reply->errorString();
-            qWarning() << QDateTime::currentDateTime().toString() << "handleNetworkReply ERROR:" << reply->error() << "=" << errStr;
-            qWarning() << QDateTime::currentDateTime().toString() << "on URL:" << reply->request().url().toString();
-            emit qwkNetworkError(reply->error(), reply->errorString());
-        } else {
-            qDebug() << QDateTime::currentDateTime().toString() << "handleNetworkReply OK";
-            // emit qwkNetworkReplyUrl(reply->request().url());
-        }
-    }
-}
-
-void WebView::handleAuthReply(QNetworkReply* aReply, QAuthenticator* aAuth)
-{
-    if( aReply && aAuth ) {
+    Q_UNUSED(aUrl)
+    if( aAuth ) {
         qDebug() << QDateTime::currentDateTime().toString() << "handleAuthReply, need authorization, do nothing for now";
         emit qwkNetworkError(QNetworkReply::AuthenticationRequiredError, QString("Web-site need authorization! Nothing to do for now :("));
     }
 }
 
-void WebView::handleProxyAuthReply(const QNetworkProxy &proxy, QAuthenticator* aAuth)
+void WebView::handleProxyAuthReply(const QUrl& aUrl, QAuthenticator* aAuth, const QString& proxyHost)
 {
-    Q_UNUSED(proxy);
+    Q_UNUSED(aUrl);
+    Q_UNUSED(proxyHost);
     if( aAuth ) {
         qDebug() << QDateTime::currentDateTime().toString() << "handleProxyAuthReply, need proxy authorization, do nothing for now";
         emit qwkNetworkError(QNetworkReply::AuthenticationRequiredError, QString("Proxy need authorization! Check your proxy auth settings!"));
