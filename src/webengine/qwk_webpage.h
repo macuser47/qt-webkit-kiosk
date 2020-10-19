@@ -5,6 +5,8 @@
 
 #include <QtWebEngineWidgets/QWebEngineView>
 
+#include <qnetworkreply.h>
+
 class QwkWebPage : public QWebEnginePage
 {
     Q_OBJECT
@@ -24,6 +26,16 @@ public Q_SLOTS:
 
 protected:
     void javaScriptConsoleMessage(QWebEnginePage::JavaScriptConsoleMessageLevel level, const QString &message, int lineNumber, const QString &sourceID);
+
+#ifndef QT_NO_SSL
+    bool certificateError(const QWebEngineCertificateError& certificateError);
+#endif
+
+#ifndef QT_NO_SSL
+signals:
+    void qwkNetworkError(QNetworkReply::NetworkError error, QString message);
+#endif
+
 };
 
 #endif // QWK_WEBPAGE_H

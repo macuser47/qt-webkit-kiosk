@@ -78,8 +78,8 @@ private:
 
 private slots:
 	#ifndef QT_NO_SSL
-    void handleSslErrors(QNetworkReply* reply, const QList<QSslError> &errors);
-	#endif
+    void forwardPageNetworkErrors(QNetworkReply::NetworkError error, QString message);
+    #endif
     void handleWindowCloseRequested();
 
     void handleNetworkReply(QNetworkReply *reply);

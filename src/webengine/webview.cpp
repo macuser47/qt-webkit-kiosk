@@ -30,12 +30,10 @@ WebView::WebView(QWidget* parent): QWebEngineView(parent)
 void WebView::initSignals()
 {
     #ifndef QT_NO_SSL
-    /* TODO: replace with certificateError() override in QWebPage
-    connect(page()->networkAccessManager(),
-            SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError> & )),
+    connect(page(),
+            SIGNAL(qwkNetworkError(QNetworkReply::NetworkError error, QString message)),
             this,
-            SLOT(handleSslErrors(QNetworkReply*, const QList<QSslError> & )));
-    */
+            SLOT(forwardPageNetworkErrors(QNetworkReply::NetworkError error, QString message)));
 	#endif
 
     connect(page(),
@@ -87,7 +85,7 @@ void WebView::setPage(QwkWebPage *page)
     initSignals();
 }
 
-
+/*TODO: merge this with applySettings*/
 void WebView::setSettings(QwkSettings *settings)
 {
     qwkSettings = settings;
@@ -151,21 +149,9 @@ void WebView::loadCustomPage(QString uri)
 }
 
 #ifndef QT_NO_SSL
-void WebView::handleSslErrors(QNetworkReply* reply, const QList<QSslError> &errors)
+void WebView::forwardPageNetworkErrors(QNetworkReply::NetworkError error, QString message)
 {
-    qDebug() << QDateTime::currentDateTime().toString() << "handleSslErrors: ";
-    QString errStr = "";
-    foreach (QSslError e, errors) {
-        qDebug() << "ssl error: " << e.errorString();
-        errStr += " " + e.errorString();
-    }
-
-    if (qwkSettings->getBool("browser/ignore_ssl_errors")) {
-        reply->ignoreSslErrors();
-    } else {
-        reply->abort();
-        emit qwkNetworkError(reply->error(), QString("Network SSL errors: ") + errStr);
-    }
+    emit qwkNetworkError(error, message);
 }
 #endif
 

@@ -85,3 +85,20 @@ void QwkWebPage::javaScriptConsoleMessage(QWebEnginePage::JavaScriptConsoleMessa
         }
     }
 }
+
+#ifndef QT_NO_SSL
+bool QwkWebPage::certificateError(const QWebEngineCertificateError& certificateError)
+{
+    QwkSettings *s = this->getSettings();
+
+    qDebug() << QDateTime::currentDateTime().toString() << "certificateError: ";
+    qDebug() << certificateError.errorDescription();
+
+    if (s->getBool("browser/ignore_ssl_errors")) {
+        return true;
+    } else {
+        emit qwkNetworkError(static_cast<QNetworkReply::NetworkError>(495), QString("Network SSL errors: ") + certificateError.errorDescription());
+    }
+    return false;
+}
+#endif
