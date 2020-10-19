@@ -36,10 +36,23 @@
 #include "mainwindow.h"
 #include "anyoption.h"
 
+#ifdef WEB_ENGINE
+QString getChromiumVersion()
+{
+    QString version;
+    QString user_agent = QWebEngineProfile::defaultProfile()->httpUserAgent();
+    for(const QString & text : user_agent.split(" ")){
+        if(text.startsWith(QStringLiteral("Chrome/"))){
+        version = text.mid(QStringLiteral("Chrome/").length());
+        }
+    }
+    return version;
+}
+#endif
+
 bool setupOptions(AnyOption *cmdopts)
 {
-    cmdopts->addUsage("This is a simple web-browser working in fullscreen kiosk-mode.");
-    cmdopts->addUsage("");
+    cmdopts->addUsage("This is a simple web-browser working in fullscreen kiosk-mode."); cmdopts->addUsage("");
     cmdopts->addUsage("Usage: ");
     cmdopts->addUsage("");
     cmdopts->addUsage(" -h --help                           Print usage and exit");
@@ -50,7 +63,12 @@ bool setupOptions(AnyOption *cmdopts)
     cmdopts->addUsage("");
     cmdopts->addUsage("Build with:");
     cmdopts->addUsage("        Qt: " QT_VERSION_STR);
+#ifdef WEB_KIT
     cmdopts->addUsage("    WebKit: library v" QTWEBKIT_VERSION_STR);
+#endif
+#ifdef WEB_ENGINE
+    cmdopts->addUsage(" WebEngine: library v" QTWEBENGINECORE_VERSION_STR);
+#endif
     cmdopts->addUsage("");
     cmdopts->addUsage("Runing with:");
 
@@ -59,14 +77,29 @@ bool setupOptions(AnyOption *cmdopts)
     const char * qtvch = qtvb.constData();
     cmdopts->addUsage(qtvch);
 
+#ifdef WEB_KIT
     QString qtwv = QString("     WebKit: engine v") + qWebKitVersion();
     QByteArray qtwvb = qtwv.toLocal8Bit();
     const char * qtwvch = qtwvb.constData();
     cmdopts->addUsage(qtwvch);
     cmdopts->addUsage("");
+#endif
+#ifdef WEB_ENGINE
+    QString qtwv = QString("  WebEngine: chromium v") + getChromiumVersion();
+    QByteArray qtwvb = qtwv.toLocal8Bit();
+    const char * qtwvch = qtwvb.constData();
+    cmdopts->addUsage(qtwvch);
+    cmdopts->addUsage("");
+#endif
 
+#ifdef WEB_KIT
     qDebug() << "Build with: Qt = " QT_VERSION_STR << "; WebKit = " QTWEBKIT_VERSION_STR;
     qDebug() << "Runing with: Qt =" << qVersion() << "; WebKit =" << qWebKitVersion();
+#endif
+#ifdef WEB_ENGINE
+    qDebug() << "Build with: Qt = " QT_VERSION_STR << "; WebEngine = " QTWEBENGINECORE_VERSION_STR;
+    qDebug() << "Runing with: Qt =" << qVersion() << "; WebEngine = chromium" <<  getChromiumVersion();
+#endif
 
     cmdopts->setFlag("help", 'h');
     cmdopts->setFlag("version", 'v');
