@@ -311,14 +311,15 @@ QWebEngineView *WebView::createWindow(QWebEnginePage::WebWindowType type)
     return getFakeLoader();
 }
 
-void WebView::handlePrintRequested(/*QWebFrame *wf*/)
+void WebView::handlePrintRequested()
 {
     qDebug() << QDateTime::currentDateTime().toString() << "Handle printRequested...";
     if (qwkSettings->getBool("printing/enable")) {
         if (!qwkSettings->getBool("printing/show-printer-dialog")) {
             if (printer->printerState() != QPrinter::Error) {
                 qDebug() << "... got printer, try use it";
-                wf->print(printer);
+                /* maybe use callback to notify user of failure? */
+                page()->print(printer, [](bool ok){Q_UNUSED(ok);});
             }
         }
     }
@@ -326,42 +327,32 @@ void WebView::handlePrintRequested(/*QWebFrame *wf*/)
 
 void WebView::scrollDown()
 {
-    QWebFrame* frame = this->page()->mainFrame();
-    QPoint point = frame->scrollPosition();
-    frame->setScrollPosition(point + QPoint(0, 100));
+    page()->runJavaScript(QString("window.scrollBy(0, 100);"));
 }
 
 void WebView::scrollPageDown()
 {
-    QWebFrame* frame = this->page()->mainFrame();
-    QPoint point = frame->scrollPosition();
-    frame->setScrollPosition(point + QPoint(0, this->page()->mainFrame()->geometry().height()));
+    page()->runJavaScript(QString("window.scrollBy(0, document.documentElement.clientHeight);"));
 }
 
 void WebView::scrollEnd()
 {
-    QWebFrame* frame = this->page()->mainFrame();
-    frame->setScrollPosition(QPoint(0, frame->contentsSize().height()));
+    page()->runJavaScript(QString("window.scrollTo(0,document.body.scrollHeight);"));
 }
 
 void WebView::scrollUp()
 {
-    QWebFrame* frame = this->page()->mainFrame();
-    QPoint point = frame->scrollPosition();
-    frame->setScrollPosition(point - QPoint(0, 100));
+    page()->runJavaScript(QString("window.scrollBy(0, -100);"));
 }
 
 void WebView::scrollPageUp()
 {
-    QWebFrame* frame = this->page()->mainFrame();
-    QPoint point = frame->scrollPosition();
-    frame->setScrollPosition(point - QPoint(0, this->page()->mainFrame()->geometry().height()));
+    page()->runJavaScript(QString("window.scrollBy(0, -document.documentElement.clientHeight);"));
 }
 
 void WebView::scrollHome()
 {
-    QWebFrame* frame = this->page()->mainFrame();
-    frame->setScrollPosition(QPoint(0, 0));
+    page()->runJavaScript(QString("window.scrollTo(0, 0);"));
 }
 
 QWebEnginePage* WebView::mainFrame()
