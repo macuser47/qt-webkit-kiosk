@@ -71,10 +71,9 @@ void WebView::setPage(QwkWebPage *page)
     initSignals();
 }
 
-/*TODO: merge this with applySettings*/
-void WebView::setSettings(QwkSettings *settings)
+void WebView::applySettings(QwkSettings* qSettings)
 {
-    qwkSettings = settings;
+    qwkSettings = qSettings;
 
     if (qwkSettings->getBool("printing/enable")) {
         if (!qwkSettings->getBool("printing/show-printer-dialog")) {
@@ -91,6 +90,34 @@ void WebView::setSettings(QwkSettings *settings)
             );
         }
     }
+
+    settings()->setAttribute(QWebEngineSettings::JavascriptEnabled,
+        qwkSettings->getBool("browser/javascript")
+    );
+
+    settings()->setAttribute(QWebEngineSettings::JavascriptCanOpenWindows,
+        qwkSettings->getBool("browser/javascript_can_open_windows")
+    );
+
+    settings()->setAttribute(QWebEngineSettings::WebGLEnabled,
+        qwkSettings->getBool("browser/webgl")
+    );
+
+    settings()->setAttribute(QWebEngineSettings::PluginsEnabled,
+        qwkSettings->getBool("browser/plugins")
+    );
+
+    settings()->setAttribute(QWebEngineSettings::LocalStorageEnabled,
+        qwkSettings->getBool("localstorage/enable")
+    );
+
+#if QT_VERSION >= 0x050400
+    settings()->setAttribute(QWebEngineSettings::Accelerated2dCanvasEnabled, true);
+#endif
+
+    settings()->setAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls,
+        qwkSettings->getBool("security/local_content_can_access_remote_urls")
+    );
 
 }
 
@@ -360,37 +387,6 @@ QWebEnginePage* WebView::mainFrame()
     return page();
 }
 
-void WebView::applySettings(QwkSettings* qwkSettings)
-{
-    settings()->setAttribute(QWebEngineSettings::JavascriptEnabled,
-        qwkSettings->getBool("browser/javascript")
-    );
-
-    settings()->setAttribute(QWebEngineSettings::JavascriptCanOpenWindows,
-        qwkSettings->getBool("browser/javascript_can_open_windows")
-    );
-
-    settings()->setAttribute(QWebEngineSettings::WebGLEnabled,
-        qwkSettings->getBool("browser/webgl")
-    );
-
-    settings()->setAttribute(QWebEngineSettings::PluginsEnabled,
-        qwkSettings->getBool("browser/plugins")
-    );
-
-    settings()->setAttribute(QWebEngineSettings::LocalStorageEnabled,
-        qwkSettings->getBool("localstorage/enable")
-    );
-
-#if QT_VERSION >= 0x050400
-    settings()->setAttribute(QWebEngineSettings::Accelerated2dCanvasEnabled, true);
-#endif
-
-    settings()->setAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls,
-        qwkSettings->getBool("security/local_content_can_access_remote_urls")
-    );
-
-}
 
 void WebView::hideScrollbars()
 {

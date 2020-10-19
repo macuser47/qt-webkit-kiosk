@@ -78,10 +78,9 @@ void WebView::setPage(QwkWebPage *page)
     initSignals();
 }
 
-
-void WebView::setSettings(QwkSettings *settings)
+void WebView::applySettings(QwkSettings* qSettings)
 {
-    qwkSettings = settings;
+    qwkSettings = qSettings;
 
     if (qwkSettings->getBool("printing/enable")) {
         if (!qwkSettings->getBool("printing/show-printer-dialog")) {
@@ -99,6 +98,51 @@ void WebView::setSettings(QwkSettings *settings)
         }
     }
 
+    if (qwkSettings->getBool("browser/cookiejar")) {
+        page()->networkAccessManager()->setCookieJar(new PersistentCookieJar());
+    }
+
+    settings()->setAttribute(QWebSettings::JavascriptEnabled,
+        qwkSettings->getBool("browser/javascript")
+    );
+
+    settings()->setAttribute(QWebSettings::JavascriptCanOpenWindows,
+        qwkSettings->getBool("browser/javascript_can_open_windows")
+    );
+
+    settings()->setAttribute(QWebSettings::JavascriptCanCloseWindows,
+        qwkSettings->getBool("browser/javascript_can_close_windows")
+    );
+
+    settings()->setAttribute(QWebSettings::WebGLEnabled,
+        qwkSettings->getBool("browser/webgl")
+    );
+
+    settings()->setAttribute(QWebSettings::JavaEnabled,
+        qwkSettings->getBool("browser/java")
+    );
+
+    settings()->setAttribute(QWebSettings::PluginsEnabled,
+        qwkSettings->getBool("browser/plugins")
+    );
+
+    settings()->setAttribute(QWebSettings::LocalStorageEnabled,
+        qwkSettings->getBool("localstorage/enable")
+    );
+
+#if QT_VERSION >= 0x050400
+    settings()->setAttribute(QWebSettings::Accelerated2dCanvasEnabled, true);
+#endif
+    settings()->setAttribute(QWebSettings::AcceleratedCompositingEnabled, true);
+#if QT_VERSION >= 0x050200
+    settings()->setAttribute(QWebSettings::CSSRegionsEnabled, true);
+    settings()->setAttribute(QWebSettings::CSSGridLayoutEnabled, true);
+#endif
+    settings()->setAttribute(QWebSettings::SiteSpecificQuirksEnabled, true);
+
+    settings()->setAttribute(QWebSettings::LocalContentCanAccessRemoteUrls,
+        qwkSettings->getBool("security/local_content_can_access_remote_urls")
+    );
 }
 
 QwkSettings* WebView::getSettings()
@@ -402,55 +446,6 @@ QWebFrame* WebView::mainFrame()
     return page()->mainFrame();
 }
 
-void WebView::applySettings(QwkSettings* qwkSettings)
-{
-
-    if (qwkSettings->getBool("browser/cookiejar")) {
-        page()->networkAccessManager()->setCookieJar(new PersistentCookieJar());
-    }
-
-    settings()->setAttribute(QWebSettings::JavascriptEnabled,
-        qwkSettings->getBool("browser/javascript")
-    );
-
-    settings()->setAttribute(QWebSettings::JavascriptCanOpenWindows,
-        qwkSettings->getBool("browser/javascript_can_open_windows")
-    );
-
-    settings()->setAttribute(QWebSettings::JavascriptCanCloseWindows,
-        qwkSettings->getBool("browser/javascript_can_close_windows")
-    );
-
-    settings()->setAttribute(QWebSettings::WebGLEnabled,
-        qwkSettings->getBool("browser/webgl")
-    );
-
-    settings()->setAttribute(QWebSettings::JavaEnabled,
-        qwkSettings->getBool("browser/java")
-    );
-
-    settings()->setAttribute(QWebSettings::PluginsEnabled,
-        qwkSettings->getBool("browser/plugins")
-    );
-
-    settings()->setAttribute(QWebSettings::LocalStorageEnabled,
-        qwkSettings->getBool("localstorage/enable")
-    );
-
-#if QT_VERSION >= 0x050400
-    settings()->setAttribute(QWebSettings::Accelerated2dCanvasEnabled, true);
-#endif
-    settings()->setAttribute(QWebSettings::AcceleratedCompositingEnabled, true);
-#if QT_VERSION >= 0x050200
-    settings()->setAttribute(QWebSettings::CSSRegionsEnabled, true);
-    settings()->setAttribute(QWebSettings::CSSGridLayoutEnabled, true);
-#endif
-    settings()->setAttribute(QWebSettings::SiteSpecificQuirksEnabled, true);
-
-    settings()->setAttribute(QWebSettings::LocalContentCanAccessRemoteUrls,
-        qwkSettings->getBool("security/local_content_can_access_remote_urls")
-    );
-}
 
 void WebView::hideScrollbars()
 {

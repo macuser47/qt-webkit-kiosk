@@ -215,7 +215,7 @@ void MainWindow::init(AnyOption *opts)
 
     setCentralWidget(view);
 
-    view->setSettings(qwkSettings);
+    view->applySettings(qwkSettings);
     view->setPage(new QwkWebPage(view));
 
     // --- Disk cache --- //
@@ -249,9 +249,6 @@ void MainWindow::init(AnyOption *opts)
         view->page()->networkAccessManager()->setCookieJar(new PersistentCookieJar());
     }
     */
-
-    view->applySettings(qwkSettings);
-
 
 #ifdef WEB_KIT
     if (qwkSettings->getBool("inspector/enable")) {
