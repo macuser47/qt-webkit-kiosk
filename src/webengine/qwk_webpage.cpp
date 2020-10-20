@@ -79,8 +79,8 @@ void QwkWebPage::javaScriptConsoleMessage(QWebEnginePage::JavaScriptConsoleMessa
         if (s->getBool("browser/show_js_console_messages")) {
             if (level <= s->getUInt("browser/js_console_loglevel")) {
                 //do something!
-                qInfo() << QDateTime::currentDateTime().toString() << "JS Console message: [" << levelName << "] " << message <<
-                           "Line:" << lineNumber << "Source:" << sourceID;
+                qInfo() << QDateTime::currentDateTime().toString() << "JS Console message: [" << levelName.toUtf8().constData() << "]"
+                        << message << "Line:" << lineNumber << "Source:" << sourceID;
             }
         }
     }
