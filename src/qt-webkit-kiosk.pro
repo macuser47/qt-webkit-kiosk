@@ -11,7 +11,11 @@ TARGET = qt-webkit-kiosk
 TEMPLATE = app
 VERSION = 1.99.11-dev
 
-qtHaveModule(webenginewidgets): {
+isEmpty( WEBLIB ) {
+        WEBLIB = webengine
+}
+
+equals(WEBLIB, webengine): {
         QT += webenginewidgets
         DEFINES += WEB_ENGINE
         SOURCES += webengine/webview.cpp \
@@ -21,7 +25,7 @@ qtHaveModule(webenginewidgets): {
                                 webengine/fakewebview.h \
                                 webengine/qwk_webpage.h
 }
-else: {
+else:equals(WEBLIB, webkit) {
         QT += webkit
         DEFINES += WEB_KIT
 
@@ -35,6 +39,9 @@ else: {
         HEADERS += webkit/webview.h \
                                 webkit/fakewebview.h \
                                 webkit/qwk_webpage.h
+}
+else: {
+        error("WEBLIB=webengine or WEBLIB=webkit required")
 }
 
 contains(QT_VERSION, ^5\\.[0-9]+\\..*) {
