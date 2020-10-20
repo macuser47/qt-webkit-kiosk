@@ -10,6 +10,7 @@
 #include "qinfo.h"
 
 #include <QtGui>
+#include <QWebEngineCertificateError>
 #include "qwk_webpage.h"
 #include "webview.h"
 
