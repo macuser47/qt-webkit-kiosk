@@ -412,11 +412,10 @@ void WebView::showScrollbars()
 
 bool WebView::disableTextSelection()
 {
-    QWebEngineScript* injectionScript = new QWebEngineScript();
     QString code = "\
 var style = document.createElement('style');\
-style.innerHtml = '\
-        body, div, p, span, h1, h2, h3, h4, h5, h6, caption, td, li, dt, dd {\
+style.innerHTML = '\
+        body, div, p, span, h1, h2, h3, h4, h5, h6, caption, td, li, dt, dd\
         {\
           -moz-user-select: none;\
           -khtml-user-select: none;\
@@ -426,27 +425,24 @@ style.innerHtml = '\
 ';\
 document.head.appendChild(style);\
     ";
-    injectionScript->setSourceCode(code);
-    page()->scripts().insert(*injectionScript);
+
+    page()->runJavaScript(code);
     return true;
 }
 
 void WebView::addHTML(QString content, TargetTag appendTo)
 {
-    QWebEngineScript* injectionScript = new QWebEngineScript();
     QString code;
-    code += "var content='" + content + "';";
+    code += "var content=`" + content + "`;";
     switch (appendTo) {
     case TargetTag::BODY:
         code += "document.body.insertAdjacentHTML('beforeend', content);";
         break;
     case TargetTag::HEAD:
-        code += "document.head.inssertAdjacentHTML('beforeend', content);";
+        code += "document.head.insertAdjacentHTML('beforeend', content);";
         break;
     }
-
-    injectionScript->setSourceCode(code);
-    page()->scripts().insert(*injectionScript);
+    page()->runJavaScript(code);
 }
 
 void WebView::registerIconChanged(QObject* caller, void (QObject::*handler) (const QIcon&))
