@@ -239,9 +239,11 @@ void MainWindow::init(AnyOption *opts)
             diskCache->clear();
         }
 
+#ifdef WEB_KIT
         CachingNetworkManager *nm = new CachingNetworkManager();
         nm->setCache(diskCache);
         view->page()->setNetworkAccessManager(nm);
+#endif
     }
 
     /* TODO: implement this for WebEngine
@@ -376,7 +378,9 @@ void MainWindow::cleanupSlot()
     qDebug("Cleanup Slot (application exit)");
     handler->stop();
     clearCacheOnExit();
+#ifdef WEB_KIT
     QWebSettings::clearMemoryCaches();
+#endif
 }
 
 
@@ -592,7 +596,9 @@ void MainWindow::startLoading()
 
     adjustTitle(view->title());
 
+#ifdef WEB_KIT
     QWebSettings::clearMemoryCaches();
+#endif
 
     if (loadProgress) {
         loadProgress->show();
