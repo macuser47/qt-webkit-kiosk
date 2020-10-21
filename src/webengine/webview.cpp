@@ -445,6 +445,14 @@ void WebView::addHTML(QString content, TargetTag appendTo)
     page()->runJavaScript(code);
 }
 
+void WebView::setPersistentCookies(bool enabled)
+{
+    if (enabled)
+        QWebEngineProfile::defaultProfile()->setPersistentCookiesPolicy(QWebEngineProfile::ForcePersistentCookies);
+    else
+        QWebEngineProfile::defaultProfile()->setPersistentCookiesPolicy(QWebEngineProfile::NoPersistentCookies);
+}
+
 void WebView::registerIconChanged(QObject* caller, void (QObject::*handler) (const QIcon&))
 {
     connect(mainFrame(), &QwkWebPage::iconChanged, [=](const QIcon& icon){

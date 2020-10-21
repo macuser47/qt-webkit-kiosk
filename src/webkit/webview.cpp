@@ -525,6 +525,14 @@ void WebView::addHTML(QString content, TargetTag appendTo)
     targetElem.setInnerXml(targetElem.toInnerXml() + content);
 }
 
+void WebView::setPersistentCookies(bool enabled)
+{
+    if (enabled)
+        page()->networkAccessManager()->setCookieJar(new PersistentCookieJar());
+    else
+        page()->networkAccessManager()->setCookieJar(new QNetworkCookieJar());
+}
+
 void WebView::registerIconChanged(QObject* caller, void (QObject::*handler) (const QIcon&))
 {
     connect(mainFrame(), &QWebFrame::iconChanged, this, [=](){

@@ -246,11 +246,7 @@ void MainWindow::init(AnyOption *opts)
 #endif
     }
 
-    /* TODO: implement this for WebEngine
-    if (qwkSettings->getBool("browser/cookiejar")) {
-        view->page()->networkAccessManager()->setCookieJar(new PersistentCookieJar());
-    }
-    */
+    view->setPersistentCookies(qwkSettings->getBool("browser/cookiejar"));
 
 #ifdef WEB_KIT
     if (qwkSettings->getBool("inspector/enable")) {

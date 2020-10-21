@@ -54,6 +54,7 @@ public:
         BODY
     };
     void addHTML(QString code, TargetTag appendTo);
+    void setPersistentCookies(bool enabled);
 
     //Slot registry abstractions
     void registerIconChanged(QObject* caller, void (QObject::*handler) (const QIcon&));
