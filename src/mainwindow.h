@@ -52,10 +52,6 @@
 #include <QtTest/QTestEventList>
 #endif
 
-#ifdef QT5
-#include <QtWebKitWidgets/QWebInspector>
-#endif
-
 #include "qweb.h"
 #include "anyoption.h"
 #include "unixsignals.h"
@@ -123,7 +119,7 @@ private:
 
     QwkSettings     *qwkSettings;
     QNetworkDiskCache *diskCache;
-    QWebInspector *inspector;
+    QWidget *inspector;
 
     QCursor     *hiddenCurdor;
     QKeyEvent   *eventExit;

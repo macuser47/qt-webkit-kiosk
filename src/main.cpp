@@ -50,6 +50,16 @@ QString getChromiumVersion()
 }
 #endif
 
+void preconfigure()
+{
+    //Enable inspector in WebEngine.
+    //Needs to be set before any other WebEngine library calls.
+    //May not work on windows?
+#ifdef WEB_ENGINE
+    qputenv("QTWEBENGINE_REMOTE_DEBUGGING", "2222");
+#endif
+}
+
 bool setupOptions(AnyOption *cmdopts)
 {
     cmdopts->addUsage("This is a simple web-browser working in fullscreen kiosk-mode."); cmdopts->addUsage("");
@@ -133,7 +143,10 @@ bool setupOptions(AnyOption *cmdopts)
 
 int main(int argc, char * argv[])
 {
+
     QApplication app(argc, argv);
+
+    preconfigure();
 
     AnyOption *cmdopts = new AnyOption();
     if (!setupOptions(cmdopts)) {

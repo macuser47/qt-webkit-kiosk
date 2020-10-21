@@ -10,6 +10,7 @@
 
 #ifdef QT5
 #include <QNetworkReply>
+#include <QtWebKitWidgets/QWebInspector>
 #ifndef QT_NO_SSL
 #include <QSslError>
 #endif
@@ -531,6 +532,14 @@ void WebView::setPersistentCookies(bool enabled)
         page()->networkAccessManager()->setCookieJar(new PersistentCookieJar());
     else
         page()->networkAccessManager()->setCookieJar(new QNetworkCookieJar());
+}
+
+QWidget* WebView::getInspector()
+{
+    settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+    QWebInspector* inspector = new QWebInspector();
+    inspector->setPage(page());
+    return inspector;
 }
 
 void WebView::registerIconChanged(QObject* caller, void (QObject::*handler) (const QIcon&))

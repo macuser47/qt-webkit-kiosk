@@ -453,6 +453,13 @@ void WebView::setPersistentCookies(bool enabled)
         QWebEngineProfile::defaultProfile()->setPersistentCookiesPolicy(QWebEngineProfile::NoPersistentCookies);
 }
 
+QWidget* WebView::getInspector()
+{
+    QWebEngineView* inspectorView = new QWebEngineView();
+    inspectorView->load(QUrl("http://127.0.0.1:2222"));
+    return inspectorView;
+}
+
 void WebView::registerIconChanged(QObject* caller, void (QObject::*handler) (const QIcon&))
 {
     connect(mainFrame(), &QwkWebPage::iconChanged, [=](const QIcon& icon){

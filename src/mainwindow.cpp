@@ -248,18 +248,13 @@ void MainWindow::init(AnyOption *opts)
 
     view->setPersistentCookies(qwkSettings->getBool("browser/cookiejar"));
 
-#ifdef WEB_KIT
     if (qwkSettings->getBool("inspector/enable")) {
-        view->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
-
-        inspector = new QWebInspector();
+        inspector = view->getInspector();
         inspector->setVisible(qwkSettings->getBool("inspector/visible"));
         inspector->setMinimumSize(800, 600);
         inspector->setWindowTitle(qwkSettings->getQString("application/name") + " - WebInspector");
         inspector->setWindowIcon(this->windowIcon());
-        inspector->setPage(view->page());
     }
-#endif
 
     connect(view->mainFrame(), SIGNAL(titleChanged(QString)), SLOT(adjustTitle(QString)));
     connect(view->mainFrame(), SIGNAL(loadStarted()), SLOT(startLoading()));
